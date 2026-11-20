@@ -9,6 +9,7 @@
 import xbmc
 import os
 import json
+import time
 import requests
 import xbmcgui
 import xbmcaddon
@@ -151,9 +152,17 @@ class Kaster(xbmcgui.WindowXMLDialog):
                 self.backgroud.setImage(self.images[rand_index]["url"])
                 # Pop image and wait
                 del self.images[rand_index]
-                # sleep for the configured time
+                # Sleep for the configured time in one-second slices so that a
+                # screensaver deactivation interrupts the wait promptly: the
+                # monitor's abort event only signals script abort, not
+                # screensaver deactivation.
                 wait_time = kodiutils.get_setting_as_int("wait-time-before-changing-image")
-                self.exit_monitor.waitForAbort(wait_time)
+                wait_end = time.time() + wait_time
+                while True:
+                    left = wait_end - time.time()
+                    if left <= 0 or not self._isactive or self.exit_monitor.abortRequested():
+                        break
+                    self.exit_monitor.waitForAbort(min(left, 1))
                 if not self._isactive or self.exit_monitor.abortRequested():
                     break
                 # Check if images dict is empty, if so read the file again
