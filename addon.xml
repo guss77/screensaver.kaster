@@ -26,6 +26,7 @@
 			[new] show the photographer name embedded in local images (EXIF Artist, IPTC By-line or XMP creator)
 			[fix] better handling of network failures for single image downloads or a complete disconnect
 			[fix] respond quickly to screensaver deactivation instead of looking stuck until the next image
+			[fix] prevent stack overflow in mode 1 with missing local picture folder
 		</news>
 		<assets>
 			<icon>resources/images/icon.png</icon>
