@@ -24,6 +24,10 @@ if not kodiutils.get_setting_as_bool("enable-hq"):
 else:
     IMAGE_FILE = os.path.join(PATH, "resources", "images", "chromecast-hq.json")
 
+# Stop probing google images after repeated network failures, so an unreachable
+# network cannot stall the slideshow once per picture.
+GOOGLE_CHECK_MAX_FAILURES = 3
+
 
 class Kaster(xbmcgui.WindowXMLDialog):
 
@@ -45,6 +49,8 @@ class Kaster(xbmcgui.WindowXMLDialog):
     def __init__(self, *args, **kwargs):
         self.exit_monitor = None
         self.images = []
+        self.google_check_failures = 0
+        self.google_checks_disabled = False
         self.set_property()
         self.utils = ScreenSaverUtils()
 
@@ -63,16 +69,64 @@ class Kaster(xbmcgui.WindowXMLDialog):
         # Start Image display loop
         if self.images and self.exit_monitor:
             while self._isactive and not self.exit_monitor.abortRequested():
+                # Failed google pictures are dropped from the list, so it can
+                # become empty in the middle of a round. Reload it, or wait if
+                # there is nothing left to show.
+                if not self.images:
+                    self.get_images()
+                    if not self.images:
+                        self.exit_monitor.waitForAbort(5)
+                        continue
                 rand_index = randint(0, len(self.images) - 1)
 
                 # if it is a google image....
                 if "private" not in self.images[rand_index]:
-                    req = requests.head(url=self.images[rand_index]["url"])
-                    if req.status_code != 200:
-                        # sleep for a bit to avoid 429 (too many requests)
-                        if req.status_code == 429:
+                    if self.google_check_failures < GOOGLE_CHECK_MAX_FAILURES:
+                        image_url = self.images[rand_index]["url"]
+                        failure = None
+                        try:
+                            req = requests.head(url=image_url, timeout=10)
+                        except requests.exceptions.RequestException as error:
+                            req = None
+                            failure = "%s: %s" % (type(error).__name__, error)
+                        if req is not None and req.status_code == 429:
+                            # Too many requests, not a broken picture: the
+                            # server is reachable and only asks us to slow
+                            # down. Back off, keep the picture for a later
+                            # attempt and do not count this as a failure.
+                            self.google_check_failures = 0
                             self.exit_monitor.waitForAbort(5)
-                        continue
+                            continue
+                        if req is None or req.status_code != 200:
+                            # Drop an unreachable or broken picture instead of
+                            # retrying it forever, which would prevent the list
+                            # from draining and the local pictures from loading.
+                            del self.images[rand_index]
+                            self.google_check_failures += 1
+                            if failure is None:
+                                failure = "HTTP %s" % req.status_code
+                            remaining = (GOOGLE_CHECK_MAX_FAILURES -
+                                         self.google_check_failures)
+                            if remaining:
+                                kodiutils.log(
+                                    "google image check failed for %s (%s); "
+                                    "%d strike(s) left" % (image_url, failure,
+                                                           remaining),
+                                    xbmc.LOGDEBUG)
+                            else:
+                                kodiutils.log(
+                                    "google image check failed for %s (%s); "
+                                    "disabling google images for this session"
+                                    % (image_url, failure),
+                                    xbmc.LOGDEBUG)
+                            if self.google_check_failures >= GOOGLE_CHECK_MAX_FAILURES:
+                                # The network looks unreachable. Stop using
+                                # google pictures for the rest of the session.
+                                self.google_checks_disabled = True
+                                self.images = [image for image in self.images
+                                               if "private" in image]
+                            continue
+                        self.google_check_failures = 0
 
                     # photo metadata
                     if "location" in list(self.images[rand_index].keys()) and "photographer" in list(self.images[rand_index].keys()):
@@ -123,9 +177,10 @@ class Kaster(xbmcgui.WindowXMLDialog):
         self.metadata_line3.setLabel(line2)
 
     def get_images(self, override=False):
+        self.google_check_failures = 0
         # Read google images from json file
         self.images = []
-        if kodiutils.get_setting_as_int("screensaver-mode") == 0 or kodiutils.get_setting_as_int("screensaver-mode") == 2 or override:
+        if not self.google_checks_disabled and (kodiutils.get_setting_as_int("screensaver-mode") == 0 or kodiutils.get_setting_as_int("screensaver-mode") == 2 or override):
             try:
                 with open(IMAGE_FILE, "r") as f:
                     images = f.read()
