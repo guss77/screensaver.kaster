@@ -90,15 +90,9 @@ class Kaster(xbmcgui.WindowXMLDialog):
                         self.metadata_line2.setLabel("")
                         self.metadata_line3.setLabel("")
                 else:
-                    # Logic for user owned photos - custom information
-                    if "line1" in self.images[rand_index]:
-                        self.metadata_line2.setLabel(self.images[rand_index]["line1"])
-                    else:
-                        self.metadata_line2.setLabel("")
-                    if "line2" in self.images[rand_index]:
-                        self.metadata_line3.setLabel(self.images[rand_index]["line2"])
-                    else:
-                        self.metadata_line3.setLabel("")
+                    # Logic for user owned photos - custom information and
+                    # photographer credits read from the image metadata
+                    self.set_user_picture_info(image)
                 # Insert photo
                 self.backgroud.setImage(self.images[rand_index]["url"])
                 # Pop image and wait
@@ -111,6 +105,22 @@ class Kaster(xbmcgui.WindowXMLDialog):
                 # Check if images dict is empty, if so read the file again
                 if not self.images:
                     self.get_images()
+
+    def set_user_picture_info(self, image):
+        """Show a local photo's caption and photographer on the info lines."""
+        line1 = image.get("line1", "")
+        line2 = image.get("line2", "")
+        if "photographer" in image:
+            photo_by = "%s %s" % (kodiutils.get_string(32001),
+                                  image["photographer"])
+            # Use the same layout as the google photos: the credit moves to
+            # line two when line one already holds a caption.
+            if line1:
+                line2 = photo_by
+            else:
+                line1 = photo_by
+        self.metadata_line2.setLabel(line1)
+        self.metadata_line3.setLabel(line2)
 
     def get_images(self, override=False):
         # Read google images from json file
