@@ -203,7 +203,8 @@ class Kaster(xbmcgui.WindowXMLDialog):
                 for image in self.utils.get_own_pictures(kodiutils.get_setting("my-pictures-folder")):
                     self.images.append(image)
             else:
-                return self.get_images(override=True)
+                if not override: # do not go into recursion loop
+                    return self.get_images(override=True)
         shuffle(self.images)
         return
 
