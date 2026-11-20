@@ -20,7 +20,7 @@ jobs:
 
           - name: Kodi addon checker validation (matrix)
             id: kodi-addon-checker-krypton
-            uses: xbmc/action-kodi-addon-checker@v1.2
+            uses: xbmc/action-kodi-addon-checker@v1.3
             with:
               kodi-version: matrix
               is-pr: false
