@@ -7,14 +7,23 @@
   See LICENSE for more information.
 """
 from . import kodiutils
+from . import exifutils
 import xbmcvfs
 import xbmc
 import os
 import json
 
+# Embedded photographer credits live at the beginning of a file. Reading a
+# small header is enough and keeps network shares responsive.
+METADATA_READ_SIZE = 131072
+
+IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg')
+
+
 class ScreenSaverUtils:
 
     def __init__(self):
+        self.photographer_cache = {}
         self.images = []
 
     @staticmethod
@@ -39,6 +48,35 @@ class ScreenSaverUtils:
                 path = os.path.join(path,folder)
                 self.__get_images_recursively(path)
 
+    def __get_photographer(self, path):
+        """Return the photographer credit embedded in an image, if any."""
+        if path in self.photographer_cache:
+            return self.photographer_cache[path]
+        name = None
+        try:
+            f = xbmcvfs.File(path)
+            try:
+                try:
+                    data = f.readBytes(METADATA_READ_SIZE)
+                except AttributeError:
+                    data = f.read(METADATA_READ_SIZE)
+            finally:
+                f.close()
+            if isinstance(data, bytearray):
+                data = data.decode('latin-1').encode('latin-1')
+            elif not isinstance(data, bytes):
+                # Older Kodi builds hand back text from File.read()
+                try:
+                    data = data.encode('latin-1')
+                except UnicodeEncodeError:
+                    data = data.encode('utf-8', 'ignore')
+            name = exifutils.get_photographer(data)
+        except Exception:
+            # Metadata is optional - never let a broken file stop the slideshow.
+            name = None
+        self.photographer_cache[path] = name
+        return name
+
     def get_all_images(self):
         return self.images
 
@@ -58,7 +96,7 @@ class ScreenSaverUtils:
         self.__get_images_recursively(xbmc.translatePath(path))
 
         for _file in self.get_all_images():
-            if _file.lower().endswith(('.png', '.jpg', '.jpeg')):
+            if _file.lower().endswith(IMAGE_EXTENSIONS):
                 returned_dict = {
                     "url": _file,
                     "private": True
@@ -70,6 +108,9 @@ class ScreenSaverUtils:
                                 returned_dict["line1"] = image["line1"]
                             if "line2" in list(image.keys()):
                                 returned_dict["line2"] = image["line2"]
+                photographer = self.__get_photographer(_file)
+                if photographer:
+                    returned_dict["photographer"] = self.remove_unknown_author(photographer)
                 yield returned_dict
 
 
