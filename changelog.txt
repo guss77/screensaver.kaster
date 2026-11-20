@@ -3,6 +3,7 @@ v1.4.0 (20/11/2026)
 - [fix] use the standard Kodi 1px hard black text shadow for the clock and picture info to improve contrast
 - [new] show the photographer name embedded in local images (EXIF Artist, IPTC By-line or XMP creator)
 - [fix] better handling of network failures for single image downloads or a complete disconnect
+- [fix] respond quickly to screensaver deactivation instead of looking stuck until the next image
 
 v1.3.6 (21/09/2021)
  - [fix] line2 does not get cleared with user photos (tks @fuse314)
