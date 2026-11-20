@@ -1,7 +1,6 @@
-v1.4.1 (19/11/2026)
+v1.4.0 (20/11/2026)
+- [fix] update to Kodi 19 xbmcvfs.translatePath change
 - [fix] use the standard Kodi 1px hard black text shadow for the clock and picture info to improve contrast
-
-v1.4.0 (18/11/2026)
 - [new] show the photographer name embedded in local images (EXIF Artist, IPTC By-line or XMP creator)
 
 v1.3.6 (21/09/2021)
