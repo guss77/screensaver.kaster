@@ -92,7 +92,7 @@ class Kaster(xbmcgui.WindowXMLDialog):
                 else:
                     # Logic for user owned photos - custom information and
                     # photographer credits read from the image metadata
-                    self.set_user_picture_info(image)
+                    self.set_user_picture_info(self.images[rand_index])
                 # Insert photo
                 self.backgroud.setImage(self.images[rand_index]["url"])
                 # Pop image and wait
