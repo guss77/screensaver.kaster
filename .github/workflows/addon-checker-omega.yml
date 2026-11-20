@@ -1,0 +1,28 @@
+name: Kodi Addon-Check (Omega)
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - v*
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  kodi-addon-checker-omega:
+    runs-on: ubuntu-latest
+    name: Kodi addon checker
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Kodi addon checker validation (omega)
+      id: kodi-addon-checker-omega
+      uses: xbmc/action-kodi-addon-checker@v1.2
+      with:
+        kodi-version: omega
+        is-pr: false
+        addon-id: ${{ github.event.repository.name }}
