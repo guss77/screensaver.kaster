@@ -7,12 +7,22 @@
   See LICENSE for more information.
 """
 import xbmc
+import xbmcvfs
 import xbmcaddon
 import xbmcgui
 import json as json
 
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo("id")
+
+
+def translate_path(path):
+    """Translate a Kodi path on both pre-19 and 19+ releases."""
+    try:
+        return xbmcvfs.translatePath(path)
+    except AttributeError:
+        # Kodi 19 added xbmcvfs.translatePath and deprecated xbmc.translatePath
+        return xbmc.translatePath(path)
 
 
 def notification(header, message, time=5000, icon=ADDON.getAddonInfo('icon'), sound=True):
@@ -24,8 +34,11 @@ def show_settings():
 
 
 def log(message,level):
-    prefix = b"[%s] " % ADDON_ID
-    formatter = prefix + b'%(name)s: %(message)s'
+    try:
+        message = message.decode('utf-8')
+    except (AttributeError, UnicodeDecodeError):
+        pass
+    formatter = "[%s] %s" % (ADDON_ID, message)
     try:
         xbmc.log(formatter, level)
     except UnicodeEncodeError:
