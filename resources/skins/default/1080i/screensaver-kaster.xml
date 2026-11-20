@@ -52,7 +52,7 @@
                     <description>temperature</description>
                     <right>auto</right>
                     <font>font13</font>
-                    <shadowcolor>#22000000</shadowcolor>
+                    <shadowcolor>#FF000000</shadowcolor>
                     <textcolor>whitesmoke</textcolor>
                     <align>right</align>
                     <aligny>center</aligny>
@@ -74,7 +74,7 @@
                     <description>Time</description>
                     <align>left</align>
                     <font>font_clock</font>
-                    <shadowcolor>22000000</shadowcolor>
+                    <shadowcolor>FF000000</shadowcolor>
                     <textcolor>whitesmoke</textcolor>
                     <height>200</height>
                     <width>auto</width>
@@ -85,7 +85,7 @@
                     <description>Time</description>
                     <align>left</align>
                     <font>font_MainMenu</font>
-                    <shadowcolor>22000000</shadowcolor>
+                    <shadowcolor>FF000000</shadowcolor>
                     <textcolor>whitesmoke</textcolor>
                     <height>200</height>
                     <width>auto</width>
@@ -96,7 +96,7 @@
                     <description>Time</description>
                     <align>left</align>
                     <font>HomeFO</font>
-                    <shadowcolor>22000000</shadowcolor>
+                    <shadowcolor>FF000000</shadowcolor>
                     <textcolor>whitesmoke</textcolor>
                     <height>120</height>
                     <width>auto</width>
@@ -107,7 +107,7 @@
                     <description>Time</description>
                     <align>left</align>
                     <font>Font-Header</font>
-                    <shadowcolor>22000000</shadowcolor>
+                    <shadowcolor>FF000000</shadowcolor>
                     <textcolor>whitesmoke</textcolor>
                     <height>120</height>
                     <width>auto</width>
@@ -118,7 +118,7 @@
                     <description>Time</description>
                     <align>left</align>
                     <font>Font-Header</font>
-                    <shadowcolor>22000000</shadowcolor>
+                    <shadowcolor>FF000000</shadowcolor>
                     <textcolor>whitesmoke</textcolor>
                     <height>120</height>
                     <width>auto</width>
@@ -129,7 +129,7 @@
                     <description>Time</description>
                     <align>left</align>
                     <font>Clock</font>
-                    <shadowcolor>22000000</shadowcolor>
+                    <shadowcolor>FF000000</shadowcolor>
                     <textcolor>whitesmoke</textcolor>
                     <height>120</height>
                     <width>auto</width>
@@ -140,7 +140,7 @@
             <control type="label" id="32503">
                 <description>Line one</description>
                 <font>font13</font>
-                <shadowcolor>22000000</shadowcolor>
+                <shadowcolor>FF000000</shadowcolor>
                 <textcolor>whitesmoke</textcolor>
                 <top>90</top>
                 <right>0</right>
@@ -154,7 +154,7 @@
             <control type="label" id="32504">
                 <description>Line two</description>
                 <font>font13</font>
-                <shadowcolor>22000000</shadowcolor>
+                <shadowcolor>FF000000</shadowcolor>
                 <textcolor>whitesmoke</textcolor>
                 <top>130</top>
                 <right>0</right>
