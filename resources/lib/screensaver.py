@@ -27,7 +27,11 @@ else:
 
 # Stop probing google images after repeated network failures, so an unreachable
 # network cannot stall the slideshow once per picture.
-GOOGLE_CHECK_MAX_FAILURES = 3
+GOOGLE_CHECK_MAX_FAILURES = 10
+
+# How long Google stays disabled before the loop gives it another chance: the
+# network may have recovered without a Kodi restart.
+GOOGLE_DISABLE_RECHECK_INTERVAL = 15 * 60
 
 
 class Kaster(xbmcgui.WindowXMLDialog):
@@ -52,6 +56,7 @@ class Kaster(xbmcgui.WindowXMLDialog):
         self.images = []
         self.google_check_failures = 0
         self.google_checks_disabled = False
+        self.google_disabled_at = 0.0
         self.set_property()
         self.utils = ScreenSaverUtils()
 
@@ -70,6 +75,16 @@ class Kaster(xbmcgui.WindowXMLDialog):
         # Start Image display loop
         if self.images and self.exit_monitor:
             while self._isactive and not self.exit_monitor.abortRequested():
+                # Google was disabled earlier; give it another chance after
+                # the interval, so a network blip does not need a Kodi
+                # restart to recover.
+                if (self.google_checks_disabled and
+                        time.time() - self.google_disabled_at >=
+                        GOOGLE_DISABLE_RECHECK_INTERVAL):
+                    self.google_checks_disabled = False
+                    self.get_images()
+                    if not self.images:
+                        continue
                 # Failed google pictures are dropped from the list, so it can
                 # become empty in the middle of a round. Reload it, or wait if
                 # there is nothing left to show.
@@ -117,13 +132,15 @@ class Kaster(xbmcgui.WindowXMLDialog):
                             else:
                                 kodiutils.log(
                                     "google image check failed for %s (%s); "
-                                    "disabling google images for this session"
+                                    "disabling google images"
                                     % (image_url, failure),
                                     xbmc.LOGDEBUG)
                             if self.google_check_failures >= GOOGLE_CHECK_MAX_FAILURES:
                                 # The network looks unreachable. Stop using
-                                # google pictures for the rest of the session.
+                                # google pictures for now; the loop re-enables
+                                # them after GOOGLE_DISABLE_RECHECK_INTERVAL.
                                 self.google_checks_disabled = True
+                                self.google_disabled_at = time.time()
                                 self.images = [image for image in self.images
                                                if "private" in image]
                             continue
