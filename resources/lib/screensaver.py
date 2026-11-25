@@ -20,10 +20,7 @@ from .screensaverutils import ScreenSaverUtils
 
 PATH = xbmcaddon.Addon().getAddonInfo("path")
 
-if not kodiutils.get_setting_as_bool("enable-hq"):
-    IMAGE_FILE = os.path.join(PATH, "resources", "images", "chromecast.json")
-else:
-    IMAGE_FILE = os.path.join(PATH, "resources", "images", "chromecast-hq.json")
+IMAGE_FILE = os.path.join(PATH, "resources", "images", "chromecast.json")
 
 # Stop probing google images after repeated network failures, so an unreachable
 # network cannot stall the slideshow once per picture.
