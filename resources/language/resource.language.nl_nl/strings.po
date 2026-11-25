@@ -1,7 +1,7 @@
 # Kodi Media Center language file
 # Addon Name: Kaster
 # Addon id: screensaver.kaster
-# Addon Provider: enen92
+# Addon Provider: guss77
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC Addons\n"

@@ -8,7 +8,7 @@
 	<extension point="xbmc.addon.metadata">
 		<platform>all</platform>
 		<license>GPL-2.0-or-later</license>
-		<source>https://github.com/enen92/screensaver.kaster</source>
+		<source>https://github.com/guss77/screensaver.kaster</source>
 		<forum>https://forum.kodi.tv/showthread.php?tid=319709</forum>
 		<summary lang="en_GB">A chromecast-like screensaver for Kodi</summary>
 		<summary lang="pt_PT">Um screensaver idêntico ao screensaver original chromecast</summary>
@@ -27,6 +27,7 @@
 			[fix] better handling of network failures for single image downloads or a complete disconnect
 			[fix] respond quickly to screensaver deactivation instead of looking stuck until the next image
 			[fix] prevent stack overflow in mode 1 with missing local picture folder
+			[feature] consolidate pictures URLs: HQ mode was removed as all images are of equal quality; removed known-not-working URLs and added some more verified URLs to the offline list; added loading an online list that would hopefully make new Chromecast ambient mode pictures available over time.
 		</news>
 		<assets>
 			<icon>resources/images/icon.png</icon>
