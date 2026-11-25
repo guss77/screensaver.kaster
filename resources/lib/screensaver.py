@@ -101,7 +101,11 @@ class Kaster(xbmcgui.WindowXMLDialog):
                         image_url = self.images[rand_index]["url"]
                         failure = None
                         try:
-                            req = requests.head(url=image_url, timeout=10)
+                            # Follow redirects (Google image URLs often 302
+                            # to the actual image); without this the check
+                            # reports the redirect status itself.
+                            req = requests.head(
+                                url=image_url, timeout=10, allow_redirects=True)
                         except requests.exceptions.RequestException as error:
                             req = None
                             failure = "%s: %s" % (type(error).__name__, error)
