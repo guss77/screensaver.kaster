@@ -16,8 +16,10 @@ ZIPFILE := $(CURDIR)/screensaver.kaster-$(VERSION).zip
 # Excluded from the archive: repository data, CI config, build tooling,
 # Python bytecode caches, and any previously built zip archives.
 ZIP_EXCLUDES := "$(ADDON_DIR)/.git" "$(ADDON_DIR)/.git/*" \
+				"$(ADDON_DIR)/.gitignore" "$(ADDON_DIR)/.gitattributes" \
 				"$(ADDON_DIR)/.github" "$(ADDON_DIR)/.github/*" \
 				"$(ADDON_DIR)/tools" "$(ADDON_DIR)/tools" "$(ADDON_DIR)/tools/*" \
+				"$(ADDON_DIR)/Makefile" \
 				"$(ADDON_DIR)/*__pycache__*" "$(ADDON_DIR)/*.pyc" "$(ADDON_DIR)/*.zip"
 
 .PHONY: build
