@@ -22,6 +22,10 @@ PATH = xbmcaddon.Addon().getAddonInfo("path")
 
 IMAGE_FILE = os.path.join(PATH, "resources", "images", "chromecast.json")
 
+# Additional URLs from periodic scraping of the Chromecast ambient home page
+ADDITIONAL_IMAGE_LIST_URL = ("https://raw.githubusercontent.com/guss77/"
+                             "chromecast-ambient-scapper/refs/heads/main/chromecast.json")
+
 # Stop probing google images after repeated network failures, so an unreachable
 # network cannot stall the slideshow once per picture.
 GOOGLE_CHECK_MAX_FAILURES = 10
@@ -215,6 +219,7 @@ class Kaster(xbmcgui.WindowXMLDialog):
                 with open(IMAGE_FILE, "r", encoding="utf-8") as f:
                     images = f.read()
             self.images = json.loads(images)
+            self._merge_additional_images()
         # Check if we have images to append
         if kodiutils.get_setting_as_int("screensaver-mode") == 1 or kodiutils.get_setting_as_int("screensaver-mode") == 2 and not override:
             if kodiutils.get_setting("my-pictures-folder") and xbmcvfs.exists(kodiutils.translate_path(kodiutils.get_setting("my-pictures-folder"))):
@@ -225,6 +230,28 @@ class Kaster(xbmcgui.WindowXMLDialog):
                     return self.get_images(override=True)
         shuffle(self.images)
         return
+
+    def _merge_additional_images(self):
+        """Merge the additional image list into the list loaded from disk.
+
+        ADDITIONAL_IMAGE_LIST_URL should return JSON compatible with our local
+        image list file.
+        """
+        try:
+            response = requests.get(ADDITIONAL_IMAGE_LIST_URL, timeout=10)
+            if response.status_code != 200:
+                return
+            entries = response.json()
+        except Exception:
+            return
+        if not isinstance(entries, list):
+            return
+        existing = {e.get("url") for e in self.images if isinstance(e, dict)}
+        for entry in entries:
+            if (isinstance(entry, dict) and entry.get("url")
+                    and entry["url"] not in existing):
+                self.images.append(entry)
+                existing.add(entry["url"])
 
     def set_property(self):
         # Kodi does not yet allow scripts to ship font definitions
